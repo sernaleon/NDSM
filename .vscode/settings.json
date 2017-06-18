@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.tcc": "cpp",
+        "istream": "cpp",
+        "memory": "cpp",
+        "array": "cpp",
+        "functional": "cpp",
+        "utility": "cpp",
+        "rope": "cpp",
+        "slist": "cpp"
+    }
+}

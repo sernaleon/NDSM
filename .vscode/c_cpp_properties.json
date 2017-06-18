@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/cores/.DS_Store",
+                "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/cores/esp8266",
+                "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WiFi/src",
+                "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WebServer/src",
+                "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266mDNS",
+                "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266HTTPClient/src",
+                "/Users/arturoserna/Documents/Arduino/libraries/ArduinoJson/src"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": [
+                    "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/cores/.DS_Store",
+                    "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/cores/esp8266",
+                    "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WiFi/src",
+                    "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WebServer/src",
+                    "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266mDNS",
+                    "/Users/arturoserna/Library/Arduino15/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266HTTPClient/src",
+                    "/Users/arturoserna/Documents/Arduino/libraries/ArduinoJson/src"
+                ]
+            }
+        }
+    ]
+}
