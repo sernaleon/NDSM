@@ -4,17 +4,14 @@ void SimpleWifi::begin(const char *ssid, const char *password)
 {
   WiFi.begin(ssid, password);
 
-  // Wait for connection
-  Serial.print("Connecting");
+  Serial.print("Connecting to ");
+  Serial.print(ssid);
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
     Serial.print(".");
   }
-  Serial.println();
-
-  Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.println("connected!");
 
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());

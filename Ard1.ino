@@ -27,14 +27,13 @@ void beforeRequest()
 
 void handleRoot()
 {
-  Serial.println("PRIMI");
+  Serial.println("ROOT");
   String json = scheduleRepo.get();
 
   // JsonObject &root = jsonBuffer.parseObject(json);
   //JsonObject &next = root["09902"]; // String(root["09902"].as<String>());//["30009902"]);
   //root.printTo(json)
   //  server.send(next);
-  Serial.println("LA SEGUNDA YA TAL");
 
   server.send(json);
 }

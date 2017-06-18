@@ -4,13 +4,12 @@ void SimpleServer::begin()
 {
   server = ESP8266WebServer(80);
 
-  server.onNotFound([&]() {
-    if (beforeEachHandler)
-    {
-      beforeEachHandler();
-    }
-    handleNotFound();
+  on("/test", [&]() {
+    Serial.println("test");
+    send("test");
   });
+
+  server.onNotFound([&]() { handleNotFound(); });
 
   server.begin();
   Serial.println("HTTP server started");
@@ -18,18 +17,22 @@ void SimpleServer::begin()
 
 void SimpleServer::beforeEachRequest(function<void(void)> beforeEachHandler)
 {
+  //server.addHandler(beforeEachHandler);
   this->beforeEachHandler = beforeEachHandler;
 }
 
 void SimpleServer::on(const char *uri, function<void(void)> handler)
 {
+  server.on(uri, handler);
+  /*
   server.on(uri, [&]() {
     if (beforeEachHandler)
     {
       beforeEachHandler();
     }
-    handler();
+    handler(&);
   });
+  */
 }
 
 void SimpleServer::send(String message)
