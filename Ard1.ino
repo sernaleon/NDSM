@@ -3,14 +3,15 @@
 #include "Interval.h"
 #include "ScheduleRepository.h"
 #include "SimpleServer.h"
+#include "SimpleWifi.h"
 
 #define LED D0
 #define SSID "AndroidAP"
 #define PWD "joon3171"
-#define SERVER_PORT 80
 #define SYNC_TIME 60000
 
-SimpleServer server = SimpleServer(SSID, PWD, SERVER_PORT);
+SimpleWifi internet = SimpleWifi();
+SimpleServer server = SimpleServer();
 ScheduleRepository scheduleRepo = ScheduleRepository();
 Interval scheduleUpdater = Interval();
 DynamicJsonBuffer jsonBuffer;
@@ -38,24 +39,18 @@ void handleRoot()
   server.send(json);
 }
 
-void syncJson(){
-    scheduleRepo.set();
-    /*
-    ([&](){scheduleRepo.set();});
-    */
-}
-
 void setup(void)
 {
   Serial.begin(115200);
   Serial.println("SIP");
 
-
-  scheduleUpdater.begin(SYNC_TIME, syncJson);
-
   pinMode(LED, OUTPUT);
 
-  server.start();
+  internet.begin(SSID,PWD);
+
+  scheduleUpdater.begin(SYNC_TIME, [&]() { scheduleRepo.set(); });
+
+  server.begin();
   server.beforeEachRequest(beforeRequest);
   server.on("/", handleRoot);
 }
