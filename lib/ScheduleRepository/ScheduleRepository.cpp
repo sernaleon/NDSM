@@ -11,7 +11,7 @@ String ScheduleRepository::get()
 
 void ScheduleRepository::set()
 {
-    Serial.println("Setting new JSON");
+    Serial.println("HOLA");
     return;
 
     HTTPClient http;
