@@ -1,5 +1,4 @@
-#ifndef SCHEDULE_REPOSITORY_H
-#define SCHEDULE_REPOSITORY_H
+#pragma once
 
 #include <ESP8266HTTPClient.h>
 
@@ -14,5 +13,3 @@ private:
   String lastValue;
   long numRefresh;
 };
-
-#endif
