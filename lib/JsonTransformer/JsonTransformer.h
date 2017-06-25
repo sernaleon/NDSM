@@ -1,24 +1,35 @@
 #pragma once
 
-#include "JsonListener.h"
+#include <JsonStreamingParser.h>
+#include <JsonListener.h>
 
-class ExampleListener: public JsonListener {
+struct Schedules {
+  String central1;
+  String central2;
+  String west1;
+  String west2;
+};
+
+class JsonTransformer: public JsonListener {
   public:
-    virtual void whitespace(char c);
-  
-    virtual void startDocument();
-
+    inline void whitespace(char c) {}
+    inline void startDocument() {}
+    inline void endDocument() {}
+    inline void endArray() {}
+    inline void endObject() {}
+    inline void startArray() {}
+    inline void startObject() {}
     virtual void key(String key);
-
     virtual void value(String value);
 
-    virtual void endArray();
+    Schedules parseJson(String json);
+  private:
+    void matcher();
 
-    virtual void endObject();
+    String partialDestination;
+    String partialTime;
+    bool catchATime;
+    bool catchADestination;
 
-    virtual void endDocument();
-
-    virtual void startArray();
-
-    virtual void startObject();
+    Schedules result;
 };

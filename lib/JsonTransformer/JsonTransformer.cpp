@@ -1,37 +1,71 @@
 #include "JsonTransformer.h"
 
-void ExampleListener::whitespace(char c) {
-  Serial.println("whitespace");
+void JsonTransformer::key(String key)
+{
+  if (key.equals("DestinationCode"))
+  {
+    catchADestination = true;
+  }
+  else if (key.equals("ExpectedDepartureTime"))
+  {
+    catchATime = true;
+  }
 }
 
-void ExampleListener::startDocument() {
-  Serial.println("start document");
+void JsonTransformer::value(String value)
+{
+  if (catchADestination)
+  {
+    partialDestination = value;
+    catchADestination = false;
+    matcher();
+  }
+  else if (catchATime)
+  {
+    partialTime = value;
+    catchATime = false;
+    matcher();
+  }
 }
 
-void ExampleListener::key(String key) {
-  Serial.println("key: " + key);
+void JsonTransformer::matcher()
+{
+  if (partialDestination.length() && partialTime.length())
+  {
+    Serial.println(partialDestination + "=" + partialTime);
+
+    if (partialDestination.equals("CS"))
+    {
+
+    }
+    else if (partialDestination.equals("WTDD"))
+    {
+    }
+    else
+    {
+      Serial.println("WTF?!?!");
+    }
+
+    partialDestination = "";
+    partialTime = "";
+  }
 }
 
-void ExampleListener::value(String value) {
-  Serial.println("value: " + value);
-}
+Schedules JsonTransformer::parseJson(String json)
+{
+  Serial.println("Zullen we gaan");
+  partialDestination = "";
+  partialTime = "";
+  catchADestination = false;
+  catchATime = false;
 
-void ExampleListener::endArray() {
-  Serial.println("end array. ");
-}
+  JsonStreamingParser parser = JsonStreamingParser();
+  parser.setListener(this);
 
-void ExampleListener::endObject() {
-  Serial.println("end object. ");
-}
+  for (int i = 0; i < json.length(); i++)
+  {
+    parser.parse(json[i]);
+  }
 
-void ExampleListener::endDocument() {
-  Serial.println("end document. ");
-}
-
-void ExampleListener::startArray() {
-   Serial.println("start array. ");
-}
-
-void ExampleListener::startObject() {
-   Serial.println("start object. ");
+  return result;
 }

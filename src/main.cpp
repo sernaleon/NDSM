@@ -5,32 +5,39 @@
 #include <ScheduleRepository.h>
 #include <SimpleWifi.h>
 #include <ESP8266WebServer.h>
-#include <JsonStreamingParser.h>
 #include <JsonListener.h>
 #include <JsonTransformer.h>
 
 #define SSID "H369A38F343"
 #define PWD "D4FF27CDFD7E"
 #define LED D0
-#define SYNC_TIME 1000
+#define SYNC_TIME 30000
 
 SimpleWifi internet = SimpleWifi();
 ScheduleRepository scheduleRepo = ScheduleRepository();
 Interval scheduleUpdater = Interval();
 ESP8266WebServer server(80);
 
-JsonStreamingParser parser;
-ExampleListener listener;
-
 bool isLedOn = false;
+void switchLed()
+{
+  digitalWrite(LED, isLedOn);
+  isLedOn = !isLedOn;
+}
 
 void handleRoot()
 {
-  Serial.println("LED switch");
-  digitalWrite(LED, isLedOn);
-  isLedOn = !isLedOn;
-  Serial.println("ROT");
+  Serial.println("Serve root!");
+  Serial.println(String(ESP.getFreeHeap()));
+
+  switchLed();
+  
   String json = scheduleRepo.get();
+
+  JsonTransformer listener = JsonTransformer();
+  listener.parseJson(json);
+
+  Serial.println(String(ESP.getFreeHeap()));
 
   server.send(200, "text/json", json);
 }
@@ -97,28 +104,15 @@ void setupServer()
   Serial.println("Server started");
 }
 
-void setupJson() {
-  Serial.println(String(ESP.getFreeHeap()));
-  parser.setListener(&listener);
-  // put your setup code here, to run once:
-  char json[] = "{\"a\":3, \"b\":{\"c\":\"d\"}}";
-  for (int i = 0; i < sizeof(json); i++) {
-    parser.parse(json[i]); 
-  }
-  Serial.println(String(ESP.getFreeHeap()));
-}
-
 void setup(void)
 {
   Serial.begin(115200);
   Serial.println("SIP");
-
   pinMode(LED, OUTPUT);
 
   internet.begin(SSID, PWD);
 
   setupOTA();
-  setupJson();
   scheduleUpdater.begin(SYNC_TIME, [&]() { scheduleRepo.set(); });
 
   setupServer();

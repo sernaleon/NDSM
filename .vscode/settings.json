@@ -7,6 +7,7 @@
         "functional": "cpp",
         "utility": "cpp",
         "rope": "cpp",
-        "slist": "cpp"
+        "slist": "cpp",
+        "tuple": "cpp"
     }
 }
