@@ -37,10 +37,11 @@ Schedules getSchedules()
 
 String schedulesToString(Schedules schedules)
 {
-  String result = schedules.central[0] + "\n" +
-                  schedules.central[1] + "\n" +
-                  schedules.west[0] + "\n" +
-                  schedules.west[1];
+  return "C0";
+  /* + schedules.central[0] + "\n" +
+         "C1" + schedules.central[1] + "\n" +
+         "W0" + schedules.west[0] + "\n" +
+         "W1" + schedules.west[1]; */
 }
 
 void handleRoot()

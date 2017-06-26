@@ -34,9 +34,27 @@ void JsonTransformer::matcher()
   {
     Serial.println(partialDestination + "=" + partialTime);
 
+    TimeParser ts;
+    ts.print(result.central[0]);
+    ts.print(result.central[1]);
+    
     if (partialDestination.equals("CS"))
     {
-      
+      tm parsedTime = ts.parse(partialTime);
+
+      if (result.central[0].tm_year == 0)
+      {
+        result.central[0] = parsedTime;
+      }
+      else if (ts.firstIsNewer(parsedTime, result.central[0]))
+      {
+        result.central[1] = result.central[0];
+        result.central[0] = parsedTime;
+      }
+      else
+      {
+        Serial.println("First is OLDER, NO-OP");
+      }
     }
     else if (partialDestination.equals("WTDD"))
     {
@@ -53,7 +71,7 @@ void JsonTransformer::matcher()
 
 Schedules JsonTransformer::parseJson(String json)
 {
-  Serial.println("Json length="+ String(json.length()));
+  Serial.println("Json length=" + String(json.length()));
 
   partialDestination = "";
   partialTime = "";

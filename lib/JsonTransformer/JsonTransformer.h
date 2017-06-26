@@ -2,10 +2,12 @@
 
 #include <JsonStreamingParser.h>
 #include <JsonListener.h>
+#include <TimeParser.h>
+#include <time.h>
 
 struct Schedules {
-  String central[2];
-  String west[2];
+  tm central[2];
+  tm west[2];
 };
 
 class JsonTransformer: public JsonListener {
@@ -23,9 +25,9 @@ class JsonTransformer: public JsonListener {
     Schedules parseJson(String json);
   private:
     void matcher();
-
     String partialDestination;
     String partialTime;
+
     bool catchATime;
     bool catchADestination;
 
