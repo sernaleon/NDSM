@@ -4,10 +4,8 @@
 #include <JsonListener.h>
 
 struct Schedules {
-  String central1;
-  String central2;
-  String west1;
-  String west2;
+  String central[2];
+  String west[2];
 };
 
 class JsonTransformer: public JsonListener {

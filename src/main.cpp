@@ -11,35 +11,47 @@
 #define SSID "H369A38F343"
 #define PWD "D4FF27CDFD7E"
 #define LED D0
-#define SYNC_TIME 30000
+#define SYNC_TIME 10000
 
-SimpleWifi internet = SimpleWifi();
-ScheduleRepository scheduleRepo = ScheduleRepository();
-Interval scheduleUpdater = Interval();
+SimpleWifi internet;
+ScheduleRepository scheduleRepo;
+Interval scheduleUpdater;
 ESP8266WebServer server(80);
+bool isLedOn;
 
-bool isLedOn = false;
 void switchLed()
 {
   digitalWrite(LED, isLedOn);
   isLedOn = !isLedOn;
 }
 
+Schedules getSchedules()
+{
+  Serial.println("HEAP 2:" + String(ESP.getFreeHeap()));
+  String json = scheduleRepo.get();
+  JsonTransformer listener = JsonTransformer();
+  Schedules result = listener.parseJson(json);
+  Serial.println("HEAP 3:" + String(ESP.getFreeHeap()));
+  return result;
+}
+
+String schedulesToString(Schedules schedules)
+{
+  String result = schedules.central[0] + "\n" +
+                  schedules.central[1] + "\n" +
+                  schedules.west[0] + "\n" +
+                  schedules.west[1];
+}
+
 void handleRoot()
 {
-  Serial.println("Serve root!");
-  Serial.println(String(ESP.getFreeHeap()));
-
   switchLed();
-  
-  String json = scheduleRepo.get();
 
-  JsonTransformer listener = JsonTransformer();
-  listener.parseJson(json);
+  Serial.println("HEAP 1:" + String(ESP.getFreeHeap()));
+  Schedules schedules = getSchedules();
+  Serial.println("HEAP 4:" + String(ESP.getFreeHeap()));
 
-  Serial.println(String(ESP.getFreeHeap()));
-
-  server.send(200, "text/json", json);
+  server.send(200, "text/json", schedulesToString(schedules));
 }
 
 void handleNotFound()
@@ -109,11 +121,12 @@ void setup(void)
   Serial.begin(115200);
   Serial.println("SIP");
   pinMode(LED, OUTPUT);
-
   internet.begin(SSID, PWD);
-
   setupOTA();
-  scheduleUpdater.begin(SYNC_TIME, [&]() { scheduleRepo.set(); });
+  scheduleUpdater.begin(SYNC_TIME, [&]() {
+    scheduleRepo.set();
+    getSchedules();
+  });
 
   setupServer();
 }

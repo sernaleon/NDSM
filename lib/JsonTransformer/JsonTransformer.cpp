@@ -36,7 +36,7 @@ void JsonTransformer::matcher()
 
     if (partialDestination.equals("CS"))
     {
-
+      
     }
     else if (partialDestination.equals("WTDD"))
     {
@@ -53,7 +53,8 @@ void JsonTransformer::matcher()
 
 Schedules JsonTransformer::parseJson(String json)
 {
-  Serial.println("Zullen we gaan");
+  Serial.println("Json length="+ String(json.length()));
+
   partialDestination = "";
   partialTime = "";
   catchADestination = false;
