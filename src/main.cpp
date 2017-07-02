@@ -2,7 +2,7 @@
 
 #include <ArduinoOTA.h>
 #include <Interval.h>
-#include <ScheduleRepository.h>
+#include <OvApi.h>
 #include <SimpleWifi.h>
 #include <ESP8266WebServer.h>
 #include <JsonListener.h>
@@ -12,57 +12,50 @@
 #define SSID "H369A38F343"
 #define PWD "D4FF27CDFD7E"
 #define LED D0
-#define SYNC_TIME 10000
+#define SYNC_TIME 120000
 
 SimpleWifi internet;
-ScheduleRepository scheduleRepo;
+OvApi ovApi;
 Interval scheduleUpdater;
 ESP8266WebServer server(80);
-bool isLedOn;
+Schedules schedules;
 
+bool isLedOn;
 void switchLed()
 {
   digitalWrite(LED, isLedOn);
   isLedOn = !isLedOn;
 }
 
-
-String schedulesToString(Schedules schedules)
+String schedulesToString()
 {
-  return "C0: "+ TimeParser::toString(schedules.central[0]) + "\n" +
+  return "C0: " + TimeParser::toString(schedules.central[0]) + "\n" +
          "C1: " + TimeParser::toString(schedules.central[1]) + "\n" +
          "W0: " + TimeParser::toString(schedules.west[0]) + "\n" +
          "W1: " + TimeParser::toString(schedules.west[1]) + "\n";
 }
 
+void updateSchedules()
+{
+  Serial.println("Updating schedules!");
+  String json = ovApi.getDeparturesJson();
+  if (json.length() > 0)
+  {
+    JsonTransformer listener = JsonTransformer();
+    schedules = listener.parseJson(json);
+
+    Serial.println(schedulesToString());
+  }
+  else
+  {
+    Serial.println("Error!");
+  }
+}
+
 void handleRoot()
 {
   switchLed();
-
-  String json = scheduleRepo.get();
-  JsonTransformer listener = JsonTransformer();
-  Schedules schedules = listener.parseJson(json);
-
-  server.send(200, "text/json", schedulesToString(schedules));
-}
-
-void handleNotFound()
-{
-  digitalWrite(LED, isLedOn);
-  isLedOn = !isLedOn;
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i = 0; i < server.args(); i++)
-  {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send(404, "text/plain", message);
+  server.send(200, "text/json", schedulesToString());
 }
 
 void setupOTA()
@@ -95,11 +88,7 @@ void setupOTA()
 void setupServer()
 {
   server.on("/", handleRoot);
-
-  server.onNotFound(handleNotFound);
-
   server.begin();
-
   Serial.println("Server started");
 }
 
@@ -111,9 +100,7 @@ void setup(void)
   internet.begin(SSID, PWD);
   setupOTA();
 
-  scheduleUpdater.begin(SYNC_TIME, [&]() {
-    scheduleRepo.set();
-  });
+  scheduleUpdater.begin(SYNC_TIME, updateSchedules);
 
   setupServer();
 }
@@ -121,6 +108,6 @@ void setup(void)
 void loop(void)
 {
   server.handleClient();
- // scheduleUpdater.loop();
+  scheduleUpdater.loop();
   ArduinoOTA.handle();
 }
