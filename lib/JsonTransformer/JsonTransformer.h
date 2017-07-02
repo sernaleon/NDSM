@@ -4,11 +4,7 @@
 #include <JsonListener.h>
 #include <TimeParser.h>
 #include <time.h>
-
-struct Schedules {
-  tm central[2];
-  tm west[2];
-};
+#include <Schedules.h>
 
 class JsonTransformer: public JsonListener {
   public:
