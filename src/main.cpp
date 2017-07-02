@@ -7,6 +7,7 @@
 #include <ESP8266WebServer.h>
 #include <JsonListener.h>
 #include <JsonTransformer.h>
+#include <TimeParser.h>
 
 #define SSID "H369A38F343"
 #define PWD "D4FF27CDFD7E"
@@ -25,39 +26,28 @@ void switchLed()
   isLedOn = !isLedOn;
 }
 
-Schedules getSchedules()
-{
-  Serial.println("HEAP 2:" + String(ESP.getFreeHeap()));
-  String json = scheduleRepo.get();
-  JsonTransformer listener = JsonTransformer();
-  Schedules result = listener.parseJson(json);
-  Serial.println("HEAP 3:" + String(ESP.getFreeHeap()));
-  return result;
-}
 
 String schedulesToString(Schedules schedules)
 {
-  return "C0";
-  /* + schedules.central[0] + "\n" +
-         "C1" + schedules.central[1] + "\n" +
-         "W0" + schedules.west[0] + "\n" +
-         "W1" + schedules.west[1]; */
+  return "C0: "+ TimeParser::toString(schedules.central[0]) + "\n" +
+         "C1: " + TimeParser::toString(schedules.central[1]) + "\n" +
+         "W0: " + TimeParser::toString(schedules.west[0]) + "\n" +
+         "W1: " + TimeParser::toString(schedules.west[1]) + "\n";
 }
 
 void handleRoot()
 {
   switchLed();
 
-  Serial.println("HEAP 1:" + String(ESP.getFreeHeap()));
-  Schedules schedules = getSchedules();
-  Serial.println("HEAP 4:" + String(ESP.getFreeHeap()));
+  String json = scheduleRepo.get();
+  JsonTransformer listener = JsonTransformer();
+  Schedules schedules = listener.parseJson(json);
 
   server.send(200, "text/json", schedulesToString(schedules));
 }
 
 void handleNotFound()
 {
-  Serial.println("LED switc!h");
   digitalWrite(LED, isLedOn);
   isLedOn = !isLedOn;
   String message = "File Not Found\n\n";
@@ -106,10 +96,6 @@ void setupServer()
 {
   server.on("/", handleRoot);
 
-  server.on("/inline", []() {
-    server.send(200, "text/plain", "this works as well");
-  });
-
   server.onNotFound(handleNotFound);
 
   server.begin();
@@ -124,9 +110,9 @@ void setup(void)
   pinMode(LED, OUTPUT);
   internet.begin(SSID, PWD);
   setupOTA();
+
   scheduleUpdater.begin(SYNC_TIME, [&]() {
     scheduleRepo.set();
-    getSchedules();
   });
 
   setupServer();
@@ -135,6 +121,6 @@ void setup(void)
 void loop(void)
 {
   server.handleClient();
-  scheduleUpdater.loop();
+ // scheduleUpdater.loop();
   ArduinoOTA.handle();
 }

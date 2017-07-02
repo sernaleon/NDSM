@@ -32,32 +32,44 @@ void JsonTransformer::matcher()
 {
   if (partialDestination.length() && partialTime.length())
   {
-    Serial.println(partialDestination + "=" + partialTime);
-
     TimeParser ts;
+    tm parsedTime = ts.parse(partialTime);
+
+    Serial.print("PRE C0: ");
     ts.print(result.central[0]);
+    Serial.print("PRE C1: ");
     ts.print(result.central[1]);
-    
+    Serial.print("PRE W0: ");
+    ts.print(result.west[0]);
+    Serial.print("PRE W1: ");
+    ts.print(result.west[1]);
+
+    Serial.print("-----IN: " + partialDestination + " ");
+    ts.print(parsedTime);
+
     if (partialDestination.equals("CS"))
     {
-      tm parsedTime = ts.parse(partialTime);
-
-      if (result.central[0].tm_year == 0)
-      {
-        result.central[0] = parsedTime;
-      }
-      else if (ts.firstIsNewer(parsedTime, result.central[0]))
+      if (result.central[0].tm_year == 0 || ts.firstIsNewer(parsedTime, result.central[0]))
       {
         result.central[1] = result.central[0];
         result.central[0] = parsedTime;
       }
-      else
+      else if (result.central[1].tm_year == 0 || ts.firstIsNewer(parsedTime, result.central[1]))
       {
-        Serial.println("First is OLDER, NO-OP");
+        result.central[1] = parsedTime;
       }
     }
     else if (partialDestination.equals("WTDD"))
     {
+      if (result.west[0].tm_year == 0 || ts.firstIsNewer(parsedTime, result.west[0]))
+      {
+        result.west[1] = result.west[0];
+        result.west[0] = parsedTime;
+      }
+      else if (result.west[1].tm_year == 0 || ts.firstIsNewer(parsedTime, result.west[1]))
+      {
+        result.west[1] = parsedTime;
+      }
     }
     else
     {
@@ -66,6 +78,15 @@ void JsonTransformer::matcher()
 
     partialDestination = "";
     partialTime = "";
+
+    Serial.print("POST C0: ");
+    ts.print(result.central[0]);
+    Serial.print("POST C1: ");
+    ts.print(result.central[1]);
+    Serial.print("POST W0: ");
+    ts.print(result.west[0]);
+    Serial.print("POST W1: ");
+    ts.print(result.west[1]);
   }
 }
 
