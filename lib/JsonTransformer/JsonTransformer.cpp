@@ -34,7 +34,7 @@ void JsonTransformer::matcher()
   {
     TimeParser ts;
     tm parsedTime = ts.parse(partialTime);
-
+/*
     Serial.print("PRE C0: ");
     ts.print(result.central[0]);
     Serial.print("PRE C1: ");
@@ -46,7 +46,7 @@ void JsonTransformer::matcher()
 
     Serial.print("-----IN: " + partialDestination + " ");
     ts.print(parsedTime);
-
+*/
     if (partialDestination.equals("CS"))
     {
       if (result.central[0].tm_year == 0 || ts.firstIsNewer(parsedTime, result.central[0]))
@@ -75,7 +75,7 @@ void JsonTransformer::matcher()
     {
       Serial.println("WTF?!?!");
     }
-
+/*
     partialDestination = "";
     partialTime = "";
 
@@ -87,6 +87,7 @@ void JsonTransformer::matcher()
     ts.print(result.west[0]);
     Serial.print("POST W1: ");
     ts.print(result.west[1]);
+    */
   }
 }
 
