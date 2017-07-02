@@ -19,8 +19,8 @@ class DisplayController
 
     inline void displaySchedules(Schedules schedules)
     {
-        lc.clearDisplay(0);
-        lc2.clearDisplay(0);
+        //lc.clearDisplay(0);
+        //lc2.clearDisplay(0);
         //First C
         lc2.setDigit(0, 7, schedules.central[0].tm_min / 10, false);
         lc2.setDigit(0, 6, schedules.central[0].tm_min % 10, false);

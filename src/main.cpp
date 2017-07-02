@@ -9,12 +9,17 @@
 #include <JsonTransformer.h>
 #include <TimeParser.h>
 #include <DisplayController.h>
+#include <NTPClient.h>
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 
 #define SSID "H369A38F343"
 #define PWD "D4FF27CDFD7E"
 #define LED D0
 #define SYNC_TIME 1200000
 
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "nl.pool.ntp.org", 7200, 60000); 
 SimpleWifi internet;
 OvApi ovApi;
 Interval scheduleUpdater;
@@ -96,8 +101,12 @@ void setupServer()
 }
 
 void updateDisplay() {
+
+  Serial.println(timeClient.getFormattedTime());
   display.displaySchedules(schedules);
 }
+
+
 
 void setup(void)
 {
@@ -106,6 +115,8 @@ void setup(void)
 
   display.setup();
   internet.begin(SSID, PWD);
+
+  timeClient.begin();
   setupOTA();
 
   scheduleUpdater.begin(SYNC_TIME, updateSchedules);
@@ -118,7 +129,8 @@ void setup(void)
 
 void loop(void)
 {
-  server.handleClient();
+  server.handleClient(); 
+  timeClient.update();
   scheduleUpdater.loop();
   displayUpdater.loop();
   ArduinoOTA.handle();
