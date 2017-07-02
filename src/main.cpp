@@ -8,17 +8,54 @@
 #include <JsonListener.h>
 #include <JsonTransformer.h>
 #include <TimeParser.h>
+#include <LedControl.h>
 
 #define SSID "H369A38F343"
 #define PWD "D4FF27CDFD7E"
 #define LED D0
-#define SYNC_TIME 120000
+#define SYNC_TIME 1200000
 
 SimpleWifi internet;
 OvApi ovApi;
 Interval scheduleUpdater;
 ESP8266WebServer server(80);
 Schedules schedules;
+
+// EasyESP or NodeMCU Pin 
+// D8 to DIN, 
+// D7 to Clk, 
+// D6 to CS, 
+// no.of devices is 8
+LedControl lc2 = LedControl(D8, D6, D7, 8);
+LedControl lc = LedControl(D4, D2, D3, 8);
+
+void setUpDisplay()
+{
+  // Initialize the MAX7219 device
+  lc.shutdown(0, false);  // Enable display
+  lc.setIntensity(0, 15); // Set brightness level (0 is min, 15 is max)
+  lc.clearDisplay(0);     // Clear display register
+//  displayUpdater.begin(1000, loopDisplay);
+  lc2.shutdown(0, false);  // Enable display
+  lc2.setIntensity(0, 15); // Set brightness level (0 is min, 15 is max)
+  lc2.clearDisplay(0);     // Clear display register
+
+  
+  lc.setDigit(0, 0, 0, false);
+  lc.setDigit(0, 1, 3, false);
+  lc.setDigit(0, 2, 0, false);
+  lc.setDigit(0, 3, 5, false);
+
+  lc.setDigit(0, 4, 6, false);
+  lc.setDigit(0, 5, 5, false);
+  lc.setDigit(0, 6, 4, false);
+  lc.setDigit(0, 7, 5, false);
+
+  for (int i = 0; i < 8; i++)
+  {
+    lc2.setDigit(0, i, i, false);
+  }
+}
 
 bool isLedOn;
 void switchLed()
@@ -97,17 +134,24 @@ void setup(void)
   Serial.begin(115200);
   Serial.println("SIP");
   pinMode(LED, OUTPUT);
+  
   internet.begin(SSID, PWD);
   setupOTA();
 
   scheduleUpdater.begin(SYNC_TIME, updateSchedules);
 
   setupServer();
+  
+  setUpDisplay();
 }
 
 void loop(void)
 {
+  
   server.handleClient();
   scheduleUpdater.loop();
+  //displayUpdater.loop();
   ArduinoOTA.handle();
+  
+  loopDisplay();
 }
