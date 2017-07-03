@@ -47,7 +47,7 @@ String schedulesToString()
 
 unsigned long getCurrentTime()
 {
-  return timeClient.getEpochTime() + 2211667200UL; //2211665580UL + 1620;
+  return timeClient.getEpochTime() + 2211667200UL;
 }
 
 void updateSchedules()
