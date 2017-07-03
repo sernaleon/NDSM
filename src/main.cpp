@@ -83,9 +83,6 @@ void setupServer()
 
 void updateDisplay()
 {
-  Serial.println("-------");
-  Serial.println(schedulesToString());
-
   int c1 = schedules.central[0] - getCurrentTime();
   int c2 = schedules.central[1] - getCurrentTime();
   int w1 = schedules.west[0] - getCurrentTime();

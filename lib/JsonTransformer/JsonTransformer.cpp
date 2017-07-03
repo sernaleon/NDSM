@@ -1,5 +1,12 @@
 #include "JsonTransformer.h"
 
+/*
+cosa = a["09902"]["30009902"]["Passes"]
+for ( var c in cosa ) { 
+   console.log(cosa[c]["DestinationCode"],cosa[c]["ExpectedDepartureTime"])
+}
+*/
+
 void JsonTransformer::key(String key)
 {
   if (key.equals("DestinationCode"))
@@ -11,12 +18,6 @@ void JsonTransformer::key(String key)
     catchATime = true;
   }
 }
-/*
-cosa = a["09902"]["30009902"]["Passes"]
-for ( var c in cosa ) { 
-   console.log(cosa[c]["DestinationCode"],cosa[c]["ExpectedDepartureTime"])
-}
-*/
 
 void JsonTransformer::value(String value)
 {
@@ -54,11 +55,11 @@ void JsonTransformer::matcher()
     TimeParser ts;
     unsigned long parsedTime = ts.parseToLinuxTime(partialTime);
 
-    Serial.print(partialDestination);
-    Serial.print("=");
     Serial.print(partialTime);
     Serial.print(" ");
     Serial.print(parsedTime);
+    Serial.print("=");
+    Serial.print(partialDestination);
     Serial.println();
 
     if (parsedTime <= currentTime)
@@ -77,6 +78,9 @@ void JsonTransformer::matcher()
     {
       Serial.println("WTF?!?!");
     }
+
+    partialDestination = "";
+    partialTime = "";
   }
 }
 
@@ -91,7 +95,6 @@ Schedules JsonTransformer::parseJson(String json, unsigned long current)
   catchADestination = false;
   catchATime = false;
   currentTime = current;
-
   JsonStreamingParser parser = JsonStreamingParser();
   parser.setListener(this);
 
@@ -105,7 +108,6 @@ Schedules JsonTransformer::parseJson(String json, unsigned long current)
          "C1: " + String(result.central[1]) + "\n" +
          "W0: " + String(result.west[0]) + "\n" +
          "W1: " + String(result.west[1]) + "\n");
-  
 
   return result;
 }

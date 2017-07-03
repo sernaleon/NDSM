@@ -33,6 +33,11 @@ class DisplayController
     {
         int s = seconds % 60;
         int m = seconds / 60;
+
+        if (m > 99) {
+            m = 99;
+            s = 99;
+        }
         /*
         Serial.print("About to print ");
         Serial.print(m);
