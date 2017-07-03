@@ -15,11 +15,13 @@ public:
   {
     Serial.println(toString(t1));
   }
+  inline unsigned long getLinuxTime(tm t) {
+    return mktime(&t);
+  }
   inline bool firstIsNewer(tm t1, tm t2)
   {
     unsigned long d1 = mktime(&t1);
     unsigned long d2 = mktime(&t2);
-
     return d1 < d2;
   }
   inline tm parse(String timeString)

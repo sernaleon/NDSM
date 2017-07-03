@@ -16,7 +16,7 @@
 #define SSID "H369A38F343"
 #define PWD "D4FF27CDFD7E"
 #define LED D0
-#define SYNC_TIME 1200000
+#define SYNC_TIME 12000000000
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "nl.pool.ntp.org", 7200, 60000);
@@ -28,6 +28,7 @@ ESP8266WebServer server(80);
 Schedules schedules;
 DisplayController display;
 SimpleOta ota;
+TimeParser timeParser;
 
 bool isLedOn;
 void switchLed()
@@ -38,10 +39,10 @@ void switchLed()
 
 String schedulesToString()
 {
-  return "C0: " + TimeParser::toString(schedules.central[0]) + "\n" +
-         "C1: " + TimeParser::toString(schedules.central[1]) + "\n" +
-         "W0: " + TimeParser::toString(schedules.west[0]) + "\n" +
-         "W1: " + TimeParser::toString(schedules.west[1]) + "\n";
+  return "C0: " + timeParser.toString(schedules.central[0]) + "\n" +
+         "C1: " + timeParser.toString(schedules.central[1]) + "\n" +
+         "W0: " + timeParser.toString(schedules.west[0]) + "\n" +
+         "W1: " + timeParser.toString(schedules.west[1]) + "\n";
 }
 
 void updateSchedules()
@@ -74,10 +75,37 @@ void setupServer()
   Serial.println("Server started");
 }
 
+unsigned long getCurrentTime()
+{                                    
+  return timeClient.getEpochTime() +  2211667200UL; //2211665580UL + 1620;
+}
+
 void updateDisplay()
 {
+  Serial.println("-------");
+  Serial.println(schedulesToString());
+  Serial.print("CURRENT ");
   Serial.println(timeClient.getFormattedTime());
-  display.displaySchedules(schedules);
+  Serial.print("CENTRAL ");
+  Serial.println(timeParser.toString(schedules.central[0]));
+  Serial.print("CURRENT ");
+  Serial.println(getCurrentTime());
+  Serial.print("CENTRAL ");
+  Serial.println(timeParser.getLinuxTime(schedules.central[0]));
+
+  int c1 = timeParser.getLinuxTime(schedules.central[0]) - getCurrentTime();
+  int c2 = timeParser.getLinuxTime(schedules.central[1]) - getCurrentTime();
+  int w1 = timeParser.getLinuxTime(schedules.west[0]) - getCurrentTime();
+  int w2 = timeParser.getLinuxTime(schedules.west[1]) - getCurrentTime();
+  Serial.println((int)c1);
+  Serial.println(c2);
+  Serial.println(w1);
+  Serial.println(w2);
+
+ // CENTRAL = CURRENT + X
+ //3710779200 - 3705422190 - 1830 + X
+
+  display.displaySeconds(c1,c2,w1,w2);
 }
 
 void setup(void)
@@ -104,6 +132,7 @@ void loop(void)
 {
   server.handleClient();
   timeClient.update();
+
   scheduleUpdater.loop();
   displayUpdater.loop();
   ota.loop();

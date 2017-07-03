@@ -1,5 +1,4 @@
-#ifndef INTERVAL_H
-#define INTERVAL_H
+#pragma once
 
 #include <Arduino.h>
 #include <functional>
@@ -39,5 +38,3 @@ private:
   unsigned long interval;
   function<void(void)> handler;
 };
-
-#endif
