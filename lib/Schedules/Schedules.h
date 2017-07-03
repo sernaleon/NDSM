@@ -1,6 +1,6 @@
 #pragma once
 
 struct Schedules {
-  tm central[2];
-  tm west[2];
+  unsigned long central[2];
+  unsigned long west[2];
 };

@@ -10,9 +10,21 @@ public:
   inline void begin(unsigned long interval, function<void(void)> handler)
   {
     this->isEnabled = true;
-    this->previous = 0;
     this->interval = interval;
     this->handler = handler;
+    execute();
+  }
+  void execute()
+  {
+      previous = millis();
+      handler();
+  }
+  void loop()
+  {
+    if (isEnabled && (millis() - previous >= interval))
+    {
+        execute();
+    }
   }
   void enable()
   {
@@ -22,16 +34,6 @@ public:
   {
     isEnabled = false;
   }
-  void loop()
-  {
-    unsigned long current = millis();
-    if (isEnabled && (current - previous >= interval))
-    {
-      previous = current;
-      handler();
-    }
-  }
-
 private:
   bool isEnabled;
   unsigned long previous;

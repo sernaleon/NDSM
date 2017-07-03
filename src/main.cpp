@@ -39,10 +39,15 @@ void switchLed()
 
 String schedulesToString()
 {
-  return "C0: " + timeParser.toString(schedules.central[0]) + "\n" +
-         "C1: " + timeParser.toString(schedules.central[1]) + "\n" +
-         "W0: " + timeParser.toString(schedules.west[0]) + "\n" +
-         "W1: " + timeParser.toString(schedules.west[1]) + "\n";
+  return "C0: " + String(schedules.central[0]) + "\n" +
+         "C1: " + String(schedules.central[1]) + "\n" +
+         "W0: " + String(schedules.west[0]) + "\n" +
+         "W1: " + String(schedules.west[1]) + "\n";
+}
+
+unsigned long getCurrentTime()
+{
+  return timeClient.getEpochTime() + 2211667200UL; //2211665580UL + 1620;
 }
 
 void updateSchedules()
@@ -52,7 +57,7 @@ void updateSchedules()
   if (json.length() > 0)
   {
     JsonTransformer listener = JsonTransformer();
-    schedules = listener.parseJson(json);
+    schedules = listener.parseJson(json, getCurrentTime());
 
     Serial.println(schedulesToString());
   }
@@ -75,37 +80,24 @@ void setupServer()
   Serial.println("Server started");
 }
 
-unsigned long getCurrentTime()
-{                                    
-  return timeClient.getEpochTime() +  2211667200UL; //2211665580UL + 1620;
-}
 
 void updateDisplay()
 {
   Serial.println("-------");
   Serial.println(schedulesToString());
-  Serial.print("CURRENT ");
-  Serial.println(timeClient.getFormattedTime());
-  Serial.print("CENTRAL ");
-  Serial.println(timeParser.toString(schedules.central[0]));
-  Serial.print("CURRENT ");
-  Serial.println(getCurrentTime());
-  Serial.print("CENTRAL ");
-  Serial.println(timeParser.getLinuxTime(schedules.central[0]));
 
-  int c1 = timeParser.getLinuxTime(schedules.central[0]) - getCurrentTime();
-  int c2 = timeParser.getLinuxTime(schedules.central[1]) - getCurrentTime();
-  int w1 = timeParser.getLinuxTime(schedules.west[0]) - getCurrentTime();
-  int w2 = timeParser.getLinuxTime(schedules.west[1]) - getCurrentTime();
-  Serial.println((int)c1);
-  Serial.println(c2);
-  Serial.println(w1);
-  Serial.println(w2);
+  int c1 = schedules.central[0] - getCurrentTime();
+  int c2 = schedules.central[1] - getCurrentTime();
+  int w1 = schedules.west[0] - getCurrentTime();
+  int w2 = schedules.west[1] - getCurrentTime();
 
- // CENTRAL = CURRENT + X
- //3710779200 - 3705422190 - 1830 + X
+  display.displaySeconds(c1, c2, w1, w2);
 
-  display.displaySeconds(c1,c2,w1,w2);
+  if (c1 <= 0 || c2 <= 0 || w1 <= 0 || w2 <= 0)
+  {
+    Serial.println("Countdown to zero. Update");
+    scheduleUpdater.execute();
+  }
 }
 
 void setup(void)
@@ -116,15 +108,14 @@ void setup(void)
   display.setup();
   internet.begin(SSID, PWD);
 
+  setupServer();
+
   timeClient.begin();
   ota.setup();
 
   scheduleUpdater.begin(SYNC_TIME, updateSchedules);
   displayUpdater.begin(1000, updateDisplay);
 
-  setupServer();
-  updateSchedules();
-  updateDisplay();
   Serial.println("Setup completed");
 }
 

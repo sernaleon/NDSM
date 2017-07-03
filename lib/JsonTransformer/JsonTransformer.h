@@ -18,14 +18,17 @@ class JsonTransformer: public JsonListener {
     virtual void key(String key);
     virtual void value(String value);
 
-    Schedules parseJson(String json);
+    Schedules parseJson(String json, unsigned long current);
   private:
     void matcher();
     String partialDestination;
     String partialTime;
+    unsigned long currentTime;
 
     bool catchATime;
     bool catchADestination;
+
+    void addSorted(unsigned long (&result)[2], unsigned long parsedTime);
 
     Schedules result;
 };

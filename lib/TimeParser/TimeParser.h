@@ -6,24 +6,6 @@
 class TimeParser
 {
 public:
-  inline static String toString(tm t1)
-  {
-    return String(t1.tm_hour) + ":" + String(t1.tm_min) + ":" + String(t1.tm_sec) +
-           " " + String(t1.tm_mday) + "/" + String(t1.tm_mon) + "/" + String(t1.tm_year);
-  }
-  inline void print(tm t1)
-  {
-    Serial.println(toString(t1));
-  }
-  inline unsigned long getLinuxTime(tm t) {
-    return mktime(&t);
-  }
-  inline bool firstIsNewer(tm t1, tm t2)
-  {
-    unsigned long d1 = mktime(&t1);
-    unsigned long d2 = mktime(&t2);
-    return d1 < d2;
-  }
   inline tm parse(String timeString)
   {
     // 2017-06-20T07:25:00
@@ -46,5 +28,10 @@ public:
     tm.tm_sec = String(s).toInt();
 
     return tm;
+  }
+  inline unsigned long parseToLinuxTime(String timeString)
+  {
+    struct tm tm = parse(timeString);
+    return mktime(&tm);
   }
 };

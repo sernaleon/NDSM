@@ -11,6 +11,12 @@ void JsonTransformer::key(String key)
     catchATime = true;
   }
 }
+/*
+cosa = a["09902"]["30009902"]["Passes"]
+for ( var c in cosa ) { 
+   console.log(cosa[c]["DestinationCode"],cosa[c]["ExpectedDepartureTime"])
+}
+*/
 
 void JsonTransformer::value(String value)
 {
@@ -28,77 +34,63 @@ void JsonTransformer::value(String value)
   }
 }
 
+void JsonTransformer::addSorted(unsigned long (&result)[2], unsigned long parsedTime)
+{
+  if (result[0] == 0 || parsedTime < result[0])
+  {
+    result[1] = result[0];
+    result[0] = parsedTime;
+  }
+  else if (result[1] == 0 || parsedTime < result[1])
+  {
+    result[1] = parsedTime;
+  }
+}
+
 void JsonTransformer::matcher()
 {
   if (partialDestination.length() && partialTime.length())
   {
     TimeParser ts;
-    tm parsedTime = ts.parse(partialTime);
-/*
-    Serial.print("PRE C0: ");
-    ts.print(result.central[0]);
-    Serial.print("PRE C1: ");
-    ts.print(result.central[1]);
-    Serial.print("PRE W0: ");
-    ts.print(result.west[0]);
-    Serial.print("PRE W1: ");
-    ts.print(result.west[1]);
+    unsigned long parsedTime = ts.parseToLinuxTime(partialTime);
 
-    Serial.print("-----IN: " + partialDestination + " ");
-    ts.print(parsedTime);
-*/
-    if (partialDestination.equals("CS"))
+    Serial.print(partialDestination);
+    Serial.print("=");
+    Serial.print(partialTime);
+    Serial.print(" ");
+    Serial.print(parsedTime);
+    Serial.println();
+
+    if (parsedTime <= currentTime)
     {
-      if (result.central[0].tm_year == 0 || ts.firstIsNewer(parsedTime, result.central[0]))
-      {
-        result.central[1] = result.central[0];
-        result.central[0] = parsedTime;
-      }
-      else if (result.central[1].tm_year == 0 || ts.firstIsNewer(parsedTime, result.central[1]))
-      {
-        result.central[1] = parsedTime;
-      }
+        Serial.println("Past time. Ignore.");
+    }
+    else if (partialDestination.equals("CS"))
+    {
+      addSorted(result.central, parsedTime);
     }
     else if (partialDestination.equals("WTDD"))
     {
-      if (result.west[0].tm_year == 0 || ts.firstIsNewer(parsedTime, result.west[0]))
-      {
-        result.west[1] = result.west[0];
-        result.west[0] = parsedTime;
-      }
-      else if (result.west[1].tm_year == 0 || ts.firstIsNewer(parsedTime, result.west[1]))
-      {
-        result.west[1] = parsedTime;
-      }
+      addSorted(result.west, parsedTime);
     }
     else
     {
       Serial.println("WTF?!?!");
     }
-/*
-    partialDestination = "";
-    partialTime = "";
-
-    Serial.print("POST C0: ");
-    ts.print(result.central[0]);
-    Serial.print("POST C1: ");
-    ts.print(result.central[1]);
-    Serial.print("POST W0: ");
-    ts.print(result.west[0]);
-    Serial.print("POST W1: ");
-    ts.print(result.west[1]);
-    */
   }
 }
 
-Schedules JsonTransformer::parseJson(String json)
+Schedules JsonTransformer::parseJson(String json, unsigned long current)
 {
-  Serial.println("Json length=" + String(json.length()));
+  Serial.println("About to parse json with length " + String(json.length()));
+  Serial.print("Current time: ");
+  Serial.println(currentTime);
 
   partialDestination = "";
   partialTime = "";
   catchADestination = false;
   catchATime = false;
+  currentTime = current;
 
   JsonStreamingParser parser = JsonStreamingParser();
   parser.setListener(this);
@@ -107,6 +99,13 @@ Schedules JsonTransformer::parseJson(String json)
   {
     parser.parse(json[i]);
   }
+
+  Serial.print("Parse result: ");
+  Serial.print( "C0: " + String(result.central[0]) + "\n" +
+         "C1: " + String(result.central[1]) + "\n" +
+         "W0: " + String(result.west[0]) + "\n" +
+         "W1: " + String(result.west[1]) + "\n");
+  
 
   return result;
 }
