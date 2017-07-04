@@ -6,29 +6,31 @@
 #include <time.h>
 #include <Schedules.h>
 
-class JsonTransformer: public JsonListener {
-  public:
-    inline void whitespace(char c) {}
-    inline void startDocument() {}
-    inline void endDocument() {}
-    inline void endArray() {}
-    inline void endObject() {}
-    inline void startArray() {}
-    inline void startObject() {}
-    virtual void key(String key);
-    virtual void value(String value);
+class JsonTransformer : public JsonListener
+{
+public:
+  inline void whitespace(char c) {}
+  inline void startDocument() {}
+  inline void endDocument() {}
+  inline void endArray() {}
+  inline void endObject() {}
+  inline void startArray() {}
+  inline void startObject() {}
+  virtual void key(String key);
+  virtual void value(String value);
 
-    Schedules parseJson(String json, unsigned long current);
-  private:
-    void matcher();
-    String partialDestination;
-    String partialTime;
-    unsigned long currentTime;
+  Schedules parseJson(String json, unsigned long current);
 
-    bool catchATime;
-    bool catchADestination;
+private:
+  void matcher();
+  String partialDestination;
+  String partialTime;
+  unsigned long currentTime;
 
-    void addSorted(unsigned long (&result)[2], unsigned long parsedTime);
+  bool catchATime;
+  bool catchADestination;
 
-    Schedules result;
+  void addSorted(unsigned long (&result)[2], unsigned long parsedTime);
+
+  Schedules result;
 };

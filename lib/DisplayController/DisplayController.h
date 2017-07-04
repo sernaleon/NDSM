@@ -38,14 +38,7 @@ class DisplayController
             m = 99;
             s = 99;
         }
-        /*
-        Serial.print("About to print ");
-        Serial.print(m);
-        Serial.print(":");
-        Serial.print(s);
-        Serial.print("=");
-        Serial.println(seconds);
-        */
+        
         lc.setDigit(0, 3 + addr, m / 10, false);
         lc.setDigit(0, 2 + addr, m % 10, false);
         lc.setDigit(0, 1 + addr, s / 10, false);

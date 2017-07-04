@@ -8,7 +8,6 @@ class TimeParser
 public:
   inline tm parse(String timeString)
   {
-    // 2017-06-20T07:25:00
     struct tm tm;
     char str[20];
     timeString.toCharArray(str, 20);

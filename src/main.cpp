@@ -35,22 +35,11 @@ unsigned long getCurrentTime()
 
 void updateSchedules()
 {
-  Serial.println("Updating schedules!");
   String json = ovApi.getDeparturesJson();
   if (json.length() > 0)
   {
     JsonTransformer listener = JsonTransformer();
     schedules = listener.parseJson(json, getCurrentTime());
-
-    Serial.println(
-        "C0: " + String(schedules.central[0]) + "\n" +
-        "C1: " + String(schedules.central[1]) + "\n" +
-        "W0: " + String(schedules.west[0]) + "\n" +
-        "W1: " + String(schedules.west[1]) + "\n");
-  }
-  else
-  {
-    Serial.println("Error!");
   }
 }
 
@@ -67,7 +56,6 @@ void updateDisplay()
 
   if (c1 <= 0 || c2 <= 0 || w1 <= 0 || w2 <= 0)
   {
-    Serial.println("Countdown to zero. Update");
     scheduleUpdater.execute();
   }
 }
@@ -77,13 +65,10 @@ void setup(void)
   Serial.begin(115200);
   display.setup();
   internet.begin(SSID, PWD);
-
   timeClient.begin();
   ota.setup();
   scheduleUpdater.begin(SYNC_TIME, updateSchedules);
   displayUpdater.begin(1000, updateDisplay);
-
-  Serial.println("Setup completed");
 }
 
 void loop(void)
