@@ -28,6 +28,23 @@ DisplayController display;
 SimpleOta ota;
 TimeParser timeParser;
 
+/*
+// Create WebSocket connection.
+const messages = [];
+const socket = new WebSocket('wss://maps.gvb.nl:8443/');
+
+// Connection opened
+socket.addEventListener('open', function (event) {
+    socket.send([5,"/stops/09902"]);
+});
+
+// Listen for messages
+socket.addEventListener('message', function (event) {
+    console.log('Message from server', event.data);
+    messages.push(event.data);
+});
+*/
+
 unsigned long getCurrentTime()
 {
   return timeClient.getEpochTime() + 2211667200UL;
