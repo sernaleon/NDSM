@@ -28,6 +28,23 @@ DisplayController display;
 SimpleOta ota;
 TimeParser timeParser;
 
+/*
+// Create WebSocket connection.
+const messages = [];
+const socket = new WebSocket('wss://maps.gvb.nl:8443/');
+
+// Connection opened
+socket.addEventListener('open', function (event) {
+    socket.send([5,"/stops/09902"]);
+});
+
+// Listen for messages
+socket.addEventListener('message', function (event) {
+    console.log('Message from server', event.data);
+    messages.push(event.data);
+});
+*/
+
 unsigned long getCurrentTime()
 {
   return timeClient.getEpochTime() + 2211667200UL;
@@ -35,11 +52,22 @@ unsigned long getCurrentTime()
 
 void updateSchedules()
 {
+  Serial.println("Updating schedules!");
   String json = ovApi.getDeparturesJson();
   if (json.length() > 0)
   {
     JsonTransformer listener = JsonTransformer();
     schedules = listener.parseJson(json, getCurrentTime());
+
+    Serial.println(
+        "C0: " + String(schedules.central[0]) + "\n" +
+        "C1: " + String(schedules.central[1]) + "\n" +
+        "W0: " + String(schedules.west[0]) + "\n" +
+        "W1: " + String(schedules.west[1]) + "\n");
+  }
+  else
+  {
+    Serial.println("Error!");
   }
 }
 
@@ -56,6 +84,7 @@ void updateDisplay()
 
   if (c1 <= 0 || c2 <= 0 || w1 <= 0 || w2 <= 0)
   {
+    Serial.println("Countdown to zero. Update");
     scheduleUpdater.execute();
   }
 }
@@ -69,6 +98,7 @@ void setup(void)
   ota.setup();
   scheduleUpdater.begin(SYNC_TIME, updateSchedules);
   displayUpdater.begin(1000, updateDisplay);
+  Serial.println("Setup completed");
 }
 
 void loop(void)
