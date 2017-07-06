@@ -1,0 +1,84 @@
+#include <JsonListener.h>
+#include <JsonStreamingParser.h>
+
+
+#include "Arduino.h"
+
+#include "SimpleOta.h"
+#include "Interval.h"
+#include "OvApi.h"
+#include "SimpleWifi.h"
+#include "JsonListener.h"
+#include "JsonTransformer.h"
+#include "TimeParser.h"
+#include "DisplayController.h"
+#include "NTPClient.h"
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+
+#define SSID "H369A38F343"
+#define PWD "D4FF27CDFD7E"
+#define LED D0
+#define SYNC_TIME 600000
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "nl.pool.ntp.org", 7200, 60000);
+SimpleWifi internet;
+OvApi ovApi;
+Interval scheduleUpdater;
+Interval displayUpdater;
+Schedules schedules;
+DisplayController display;
+SimpleOta ota;
+TimeParser timeParser;
+
+unsigned long getCurrentTime()
+{
+  return timeClient.getEpochTime() + 2211667200UL;
+}
+
+void updateSchedules()
+{
+  String json = ovApi.getDeparturesJson();
+  if (json.length() > 0)
+  {
+    JsonTransformer listener = JsonTransformer();
+    schedules = listener.parseJson(json, getCurrentTime());
+  }
+}
+
+void updateDisplay()
+{
+  unsigned long currentTime = getCurrentTime();
+
+  int c1 = schedules.central[0] - currentTime;
+  int c2 = schedules.central[1] - currentTime;
+  int w1 = schedules.west[0] - currentTime;
+  int w2 = schedules.west[1] - currentTime;
+
+  display.displaySeconds(c1, c2, w1, w2);
+
+  if (c1 <= 0 || c2 <= 0 || w1 <= 0 || w2 <= 0)
+  {
+    scheduleUpdater.execute();
+  }
+}
+
+void setup(void)
+{
+  Serial.begin(115200);
+  display.setup();
+  internet.begin(SSID, PWD);
+  timeClient.begin();
+  ota.setup();
+  scheduleUpdater.begin(SYNC_TIME, updateSchedules);
+  displayUpdater.begin(1000, updateDisplay);
+}
+
+void loop(void)
+{
+  timeClient.update();
+  scheduleUpdater.loop();
+  displayUpdater.loop();
+  ota.loop();
+}
