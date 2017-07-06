@@ -34,11 +34,12 @@ class DisplayController
         int s = seconds % 60;
         int m = seconds / 60;
 
-        if (m > 99) {
+        if (m > 99)
+        {
             m = 99;
             s = 99;
         }
-        
+
         lc.setDigit(0, 3 + addr, m / 10, false);
         lc.setDigit(0, 2 + addr, m % 10, false);
         lc.setDigit(0, 1 + addr, s / 10, false);
