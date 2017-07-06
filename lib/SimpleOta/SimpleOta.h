@@ -31,6 +31,7 @@ class SimpleOta
                 Serial.println("End Failed");
         });
         ArduinoOTA.begin();
+        Serial.println("OTA Service started");
     }
     inline void loop()
     {

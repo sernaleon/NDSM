@@ -94,12 +94,10 @@ void setup(void)
   Serial.begin(115200);
   display.setup();
   internet.begin(SSID, PWD);
-
   timeClient.begin();
   ota.setup();
   scheduleUpdater.begin(SYNC_TIME, updateSchedules);
   displayUpdater.begin(1000, updateDisplay);
-
   Serial.println("Setup completed");
 }
 
