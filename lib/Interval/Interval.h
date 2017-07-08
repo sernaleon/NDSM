@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ILoopService.h>
+
 #include <functional>
 using namespace std;
 
@@ -16,14 +18,14 @@ public:
   }
   void execute()
   {
-      previous = millis();
-      handler();
+    previous = millis();
+    handler();
   }
   void loop()
   {
     if (isEnabled && (millis() - previous >= interval))
     {
-        execute();
+      execute();
     }
   }
   void enable()
@@ -34,6 +36,7 @@ public:
   {
     isEnabled = false;
   }
+
 private:
   bool isEnabled;
   unsigned long previous;

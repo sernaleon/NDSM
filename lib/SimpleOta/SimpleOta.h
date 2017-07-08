@@ -2,11 +2,12 @@
 
 #include "Arduino.h"
 #include <ArduinoOTA.h>
+#include <ILoopService.h>
 
-class SimpleOta
+class OtaService: public ILoopService
 {
   public:
-    inline void setup()
+    inline void begin()
     {
         ArduinoOTA.onStart([]() {
             Serial.println("Start");
